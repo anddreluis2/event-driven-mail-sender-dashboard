@@ -1,21 +1,25 @@
 "use server";
 
-import { scheduleEmail as scheduleEmailApi } from "@/lib/api-server";
+import { scheduleEmail as scheduleEmailApi } from "@/lib/api";
 import { scheduleEmailSchema } from "@/lib/schemas";
 import type { ScheduleEmailInput } from "@/lib/schemas";
 
 export type ScheduleEmailState =
   | { success: true }
-  | { success: false; error?: string; errors?: Partial<Record<keyof ScheduleEmailInput, string>> };
+  | {
+      success: false;
+      error?: string;
+      errors?: Partial<Record<keyof ScheduleEmailInput, string>>;
+    };
 
 function getString(formData: FormData, key: string): string {
   const value = formData.get(key);
-  return typeof value === "string" ? value : "";
+  return value ? String(value) : "";
 }
 
 export async function scheduleEmailAction(
   _prevState: ScheduleEmailState | null,
-  formData: FormData
+  formData: FormData,
 ): Promise<ScheduleEmailState> {
   const payload = {
     toEmail: getString(formData, "toEmail"),
