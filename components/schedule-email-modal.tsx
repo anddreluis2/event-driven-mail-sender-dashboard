@@ -142,7 +142,7 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
         <DialogClose asChild>
           <button
             type="button"
-            className="inline-flex h-10 items-center justify-center rounded-md border border-zinc-200 px-4 text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:bg-zinc-50 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 dark:border-zinc-800 dark:hover:scale-[1.02] dark:hover:bg-zinc-900 dark:active:scale-[0.98] dark:focus:ring-zinc-50"
+            className="inline-flex h-10 items-center justify-center rounded-md border border-zinc-200 px-4 text-sm font-medium transition-all duration-200 ease-out hover:scale-[1.02] hover:bg-zinc-50 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-zinc-950 dark:border-zinc-800 dark:hover:scale-[1.02] dark:hover:bg-zinc-900 dark:active:scale-[0.98] dark:focus:ring-zinc-50"
           >
             Cancel
           </button>
@@ -150,7 +150,7 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
         <button
           type="submit"
           disabled={isSubmitting}
-          className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition-all duration-200 ease-out hover:scale-[1.02] hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:scale-[1.02] dark:hover:bg-zinc-200 dark:active:scale-[0.98] dark:focus:ring-zinc-50"
+          className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition-all duration-200 ease-out hover:scale-[1.02] hover:bg-zinc-800 active:scale-[0.98] focus:outline-none focus:ring-2 focus:ring-zinc-950 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:scale-[1.02] dark:hover:bg-zinc-200 dark:active:scale-[0.98] dark:focus:ring-zinc-50"
         >
           {isSubmitting ? "Scheduling..." : "Schedule"}
         </button>
