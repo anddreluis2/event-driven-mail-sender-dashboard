@@ -1,6 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useCallback, useState } from "react";
+import { useRouter } from "next/navigation";
+import { format } from "date-fns";
 import {
   Dialog,
   DialogContent,
@@ -9,9 +11,22 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { ScheduleEmailModal } from "./schedule-email-modal";
+import type { ListedEmail } from "@/lib/types";
 
-export function ScheduledEmailsSection() {
+type ScheduledEmailsSectionProps = {
+  initialEmails: ListedEmail[];
+  error?: string | null;
+};
+
+export function ScheduledEmailsSection({ initialEmails, error }: ScheduledEmailsSectionProps) {
   const [open, setOpen] = useState(false);
+  const router = useRouter();
+
+  const handleSuccess = useCallback(() => {
+    setOpen(false);
+    router.refresh();
+  }, [router]);
+
   return (
     <section>
       <div className="mb-4 flex items-center justify-between">
@@ -31,14 +46,82 @@ export function ScheduledEmailsSection() {
             <DialogHeader>
               <DialogTitle>Schedule Email</DialogTitle>
             </DialogHeader>
-            <ScheduleEmailModal onSuccess={() => setOpen(false)} />
+            <ScheduleEmailModal onSuccess={handleSuccess} />
           </DialogContent>
         </Dialog>
       </div>
-      <div className="rounded-lg border border-zinc-200 bg-white p-12 text-center dark:border-zinc-800 dark:bg-zinc-950">
-        <p className="text-zinc-500 dark:text-zinc-400">
-          No emails scheduled yet. Click &quot;Schedule Email&quot; to add one.
-        </p>
+      <div className="overflow-hidden rounded-lg border border-zinc-200 bg-white dark:border-zinc-800 dark:bg-zinc-950">
+        {error ? (
+          <div className="p-12 text-center">
+            <p className="text-sm text-red-600 dark:text-red-400">{error}</p>
+          </div>
+        ) : initialEmails.length === 0 ? (
+          <div className="p-12 text-center">
+            <p className="text-zinc-500 dark:text-zinc-400">
+              No emails scheduled yet. Click &quot;Schedule Email&quot; to add one.
+            </p>
+          </div>
+        ) : (
+          <div className="overflow-x-auto">
+            <table className="w-full text-left text-sm">
+              <thead>
+                <tr className="border-b border-zinc-200 dark:border-zinc-800">
+                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    Subject
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    Status
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    To
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    Sent at
+                  </th>
+                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    Created at
+                  </th>
+                </tr>
+              </thead>
+              <tbody>
+                {initialEmails.map((email) => (
+                  <tr
+                    key={email.id}
+                    className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+                  >
+                    <td className="px-4 py-3 text-zinc-950 dark:text-zinc-50">
+                      {email.subject}
+                    </td>
+                    <td className="px-4 py-3">
+                      <span
+                        className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
+                          email.status === "sent"
+                            ? "bg-green-100 text-green-800 dark:bg-green-900/30 dark:text-green-400"
+                            : email.status === "scheduled"
+                              ? "bg-amber-100 text-amber-800 dark:bg-amber-900/30 dark:text-amber-400"
+                              : "bg-zinc-100 text-zinc-800 dark:bg-zinc-800 dark:text-zinc-400"
+                        }`}
+                      >
+                        {email.status}
+                      </span>
+                    </td>
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                      {email.toEmail}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                      {email.sentAt
+                        ? format(new Date(email.sentAt), "PPp")
+                        : "—"}
+                    </td>
+                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                      {format(new Date(email.createdAt), "PPp")}
+                    </td>
+                  </tr>
+                ))}
+              </tbody>
+            </table>
+          </div>
+        )}
       </div>
     </section>
   );
