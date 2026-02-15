@@ -4,6 +4,7 @@ import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { toast } from "sonner";
 import { scheduleEmailSchema, type ScheduleEmailInput } from "@/lib/schemas";
+import { parseApiError } from "@/lib/api-error";
 import { DateTimePicker } from "./date-time-picker";
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 
@@ -34,7 +35,6 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
   const dateValue = sendAtValue ? new Date(sendAtValue) : undefined;
 
   const onSubmit = async (data: ScheduleEmailInput) => {
-    // calls server for future auth just on server side
     try {
       const res = await fetch("/api/emails/schedule", {
         method: "POST",
@@ -44,8 +44,7 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
       const result = await res.json();
 
       if (!res.ok) {
-        const message = result.error ?? "Failed to schedule email";
-        toast.error(message);
+        toast.error(parseApiError(result, "Failed to schedule email"));
         return;
       }
 
