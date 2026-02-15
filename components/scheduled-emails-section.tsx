@@ -73,11 +73,12 @@ export function ScheduledEmailsSection({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full min-w-[900px] table-fixed text-left text-sm">
+            <table className="w-full min-w-[1000px] table-fixed text-left text-sm">
               <colgroup>
-                <col className="w-[30%]" />
+                <col className="w-[25%]" />
                 <col className="w-[90px]" />
-                <col className="w-[200px]" />
+                <col className="w-[180px]" />
+                <col className="w-[160px]" />
                 <col className="w-[160px]" />
                 <col className="w-[160px]" />
               </colgroup>
@@ -91,6 +92,9 @@ export function ScheduledEmailsSection({
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     To
+                  </th>
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                    Scheduled to
                   </th>
                   <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     Sent at
@@ -124,6 +128,9 @@ export function ScheduledEmailsSection({
                     </td>
                     <td className="max-w-0 truncate px-4 py-3 text-zinc-600 dark:text-zinc-400" title={email.toEmail}>
                       {email.toEmail}
+                    </td>
+                    <td className="whitespace-nowrap px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                      {format(new Date(email.sendAt), "PPp")}
                     </td>
                     <td className="whitespace-nowrap px-4 py-3 text-zinc-600 dark:text-zinc-400">
                       {email.sentAt

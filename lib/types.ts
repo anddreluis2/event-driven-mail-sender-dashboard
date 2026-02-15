@@ -5,6 +5,7 @@ export type ListedEmail = {
   subject: string;
   status: string;
   toEmail: string;
+  sendAt: string;
   sentAt: string | null;
   createdAt: string;
 };
