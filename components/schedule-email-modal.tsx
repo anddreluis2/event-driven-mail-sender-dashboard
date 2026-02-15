@@ -2,6 +2,7 @@
 
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
+import { toast } from "sonner";
 import { scheduleEmailSchema, type ScheduleEmailInput } from "@/lib/schemas";
 import { DateTimePicker } from "./date-time-picker";
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
@@ -22,7 +23,6 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
     handleSubmit,
     setValue,
     watch,
-    setError,
     clearErrors,
     formState: { errors, isSubmitting },
   } = useForm<ScheduleEmailInput>({
@@ -44,28 +44,22 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
       const result = await res.json();
 
       if (!res.ok) {
-        setError("root", {
-          message: result.error ?? "Failed to schedule email",
-        });
+        const message = result.error ?? "Failed to schedule email";
+        toast.error(message);
         return;
       }
 
+      toast.success("Email scheduled successfully");
       onSuccess?.();
     } catch (err) {
-      setError("root", {
-        message:
-          err instanceof Error ? err.message : "Failed to schedule email",
-      });
+      toast.error(
+        err instanceof Error ? err.message : "Failed to schedule email"
+      );
     }
   };
 
   return (
     <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
-      {errors.root && (
-        <div className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/50 dark:text-red-200">
-          {errors.root.message}
-        </div>
-      )}
       <div className="space-y-2">
         <label
           htmlFor="toEmail"
