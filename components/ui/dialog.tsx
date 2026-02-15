@@ -28,7 +28,7 @@ const DialogContent = forwardRef<
     <DialogOverlay />
     <DialogPrimitive.Content
       ref={ref}
-      className={`dialog-content fixed left-[50%] top-[50%] z-50 grid w-full max-w-lg translate-x-[-50%] translate-y-[-50%] gap-4 border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 sm:rounded-lg ${className}`}
+      className={`dialog-content gap-4 border border-zinc-200 bg-white p-6 shadow-lg dark:border-zinc-800 dark:bg-zinc-950 sm:rounded-lg ${className}`}
       {...props}
     >
       {children}
