@@ -48,7 +48,7 @@ export default async function Home({ searchParams }: HomeProps) {
   return (
     <div className="min-h-screen bg-zinc-50 dark:bg-zinc-950">
       <DashboardHeader />
-      <main className="mx-auto max-w-4xl px-6 py-8">
+      <main className="mx-auto max-w-6xl px-6 py-8">
         <ScheduledEmailsSection
           initialEmails={result.data.emails}
           total={result.data.total}

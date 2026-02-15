@@ -73,22 +73,29 @@ export function ScheduledEmailsSection({
           </div>
         ) : (
           <div className="overflow-x-auto">
-            <table className="w-full text-left text-sm">
+            <table className="w-full min-w-[900px] table-fixed text-left text-sm">
+              <colgroup>
+                <col className="w-[30%]" />
+                <col className="w-[90px]" />
+                <col className="w-[200px]" />
+                <col className="w-[160px]" />
+                <col className="w-[160px]" />
+              </colgroup>
               <thead>
                 <tr className="border-b border-zinc-200 dark:border-zinc-800">
-                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     Subject
                   </th>
-                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     Status
                   </th>
-                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     To
                   </th>
-                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     Sent at
                   </th>
-                  <th className="px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
+                  <th className="whitespace-nowrap px-4 py-3 font-medium text-zinc-950 dark:text-zinc-50">
                     Created at
                   </th>
                 </tr>
@@ -97,12 +104,12 @@ export function ScheduledEmailsSection({
                 {initialEmails.map((email) => (
                   <tr
                     key={email.id}
-                    className="border-b border-zinc-100 last:border-0 dark:border-zinc-800"
+                    className="border-b border-zinc-100 last:border-0 transition-colors hover:bg-zinc-50 dark:border-zinc-800 dark:hover:bg-zinc-800/50"
                   >
-                    <td className="px-4 py-3 text-zinc-950 dark:text-zinc-50">
+                    <td className="max-w-0 truncate px-4 py-3 text-zinc-950 dark:text-zinc-50" title={email.subject}>
                       {email.subject}
                     </td>
-                    <td className="px-4 py-3">
+                    <td className="whitespace-nowrap px-4 py-3">
                       <span
                         className={`inline-flex rounded-full px-2 py-0.5 text-xs font-medium ${
                           email.status === "sent"
@@ -115,15 +122,15 @@ export function ScheduledEmailsSection({
                         {email.status}
                       </span>
                     </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    <td className="max-w-0 truncate px-4 py-3 text-zinc-600 dark:text-zinc-400" title={email.toEmail}>
                       {email.toEmail}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    <td className="whitespace-nowrap px-4 py-3 text-zinc-600 dark:text-zinc-400">
                       {email.sentAt
                         ? format(new Date(email.sentAt), "PPp")
                         : "—"}
                     </td>
-                    <td className="px-4 py-3 text-zinc-600 dark:text-zinc-400">
+                    <td className="whitespace-nowrap px-4 py-3 text-zinc-600 dark:text-zinc-400">
                       {format(new Date(email.createdAt), "PPp")}
                     </td>
                   </tr>
@@ -133,9 +140,13 @@ export function ScheduledEmailsSection({
           </div>
         )}
         {!error && total > 0 && (
-          <div className="flex flex-col items-center justify-between gap-4 border-t border-zinc-200 px-4 py-3 sm:flex-row dark:border-zinc-800">
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-zinc-200/80 bg-zinc-50/50 px-4 py-4 sm:flex-row dark:border-zinc-800/80 dark:bg-zinc-900/30">
             <p className="text-sm text-zinc-500 dark:text-zinc-400">
-              {total} total · page {page} of {Math.ceil(total / limit)}
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">{total}</span>
+              {" "}total · page{" "}
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">{page}</span>
+              {" "}of{" "}
+              <span className="font-medium text-zinc-700 dark:text-zinc-300">{Math.ceil(total / limit)}</span>
             </p>
             <Pagination
               page={page}

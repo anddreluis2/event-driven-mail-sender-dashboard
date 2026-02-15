@@ -2,14 +2,17 @@
 
 import Link from "next/link";
 
-const paginationItemClass =
-  "inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200 text-sm font-medium transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:border-zinc-800 dark:hover:bg-zinc-900 dark:focus:ring-zinc-50";
+const navButtonClass =
+  "inline-flex h-9 min-w-9 items-center justify-center gap-1.5 rounded-lg px-3 text-sm font-medium text-zinc-600 transition-all duration-200 hover:bg-zinc-100 hover:text-zinc-950 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-40 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50 dark:focus:ring-zinc-500";
 
-const paginationLinkClass =
-  "inline-flex h-9 w-9 items-center justify-center rounded-md border border-zinc-200 text-sm font-medium transition-colors hover:bg-zinc-50 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 dark:border-zinc-800 dark:hover:bg-zinc-900 dark:focus:ring-zinc-50";
+const pageButtonClass =
+  "inline-flex h-9 min-w-9 items-center justify-center rounded-lg text-sm font-medium transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-zinc-400 focus:ring-offset-2 dark:focus:ring-zinc-500";
 
-const paginationActiveClass =
-  "border-zinc-950 bg-zinc-950 text-white hover:bg-zinc-800 hover:text-white dark:border-zinc-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 dark:hover:text-zinc-950";
+const pageButtonInactive =
+  "text-zinc-600 hover:bg-zinc-100 hover:text-zinc-950 dark:text-zinc-400 dark:hover:bg-zinc-800 dark:hover:text-zinc-50";
+
+const pageButtonActive =
+  "bg-zinc-900 text-white shadow-sm hover:bg-zinc-800 dark:bg-zinc-100 dark:text-zinc-950 dark:hover:bg-zinc-200";
 
 type PaginationProps = {
   page: number;
@@ -55,40 +58,40 @@ export function Pagination({
     <nav
       role="navigation"
       aria-label="Pagination"
-      className="flex items-center gap-1"
+      className="inline-flex items-center gap-2 rounded-xl bg-zinc-100/80 p-1.5 dark:bg-zinc-800/50"
     >
       {page > 1 ? (
         <Link
           href={`${basePath}?page=${page - 1}`}
-          className={`${paginationItemClass} gap-1 px-3`}
+          className={navButtonClass}
           aria-label="Previous page"
         >
-          <span aria-hidden>‹</span>
-          <span className="sr-only sm:not-sr-only sm:inline">Previous</span>
+          <span aria-hidden className="text-base leading-none">‹</span>
+          <span className="hidden sm:inline">Previous</span>
         </Link>
       ) : (
         <span
-          className={`${paginationItemClass} cursor-not-allowed gap-1 px-3 opacity-50`}
+          className={`${navButtonClass} cursor-not-allowed`}
           aria-disabled
         >
-          <span aria-hidden>‹</span>
-          <span className="sr-only sm:not-sr-only sm:inline">Previous</span>
+          <span aria-hidden className="text-base leading-none">‹</span>
+          <span className="hidden sm:inline">Previous</span>
         </span>
       )}
-      <ul className="flex items-center gap-1">
+      <ul className="flex items-center gap-1.5">
         {pages.map((p, i) =>
           p === "ellipsis" ? (
             <li
               key={`ellipsis-${i}`}
-              className="flex h-9 w-9 items-center justify-center"
+              className="flex h-9 w-9 items-center justify-center text-zinc-400 dark:text-zinc-500"
             >
-              <span className="text-zinc-500">…</span>
+              …
             </li>
           ) : (
             <li key={p}>
               {p === page ? (
                 <span
-                  className={`${paginationLinkClass} ${paginationActiveClass}`}
+                  className={`${pageButtonClass} ${pageButtonActive}`}
                   aria-current="page"
                 >
                   {p}
@@ -96,7 +99,7 @@ export function Pagination({
               ) : (
                 <Link
                   href={`${basePath}?page=${p}`}
-                  className={paginationLinkClass}
+                  className={`${pageButtonClass} ${pageButtonInactive}`}
                 >
                   {p}
                 </Link>
@@ -108,19 +111,19 @@ export function Pagination({
       {page < totalPages ? (
         <Link
           href={`${basePath}?page=${page + 1}`}
-          className={`${paginationItemClass} gap-1 px-3`}
+          className={navButtonClass}
           aria-label="Next page"
         >
-          <span className="sr-only sm:not-sr-only sm:inline">Next</span>
-          <span aria-hidden>›</span>
+          <span className="hidden sm:inline">Next</span>
+          <span aria-hidden className="text-base leading-none">›</span>
         </Link>
       ) : (
         <span
-          className={`${paginationItemClass} cursor-not-allowed gap-1 px-3 opacity-50`}
+          className={`${navButtonClass} cursor-not-allowed`}
           aria-disabled
         >
-          <span className="sr-only sm:not-sr-only sm:inline">Next</span>
-          <span aria-hidden>›</span>
+          <span className="hidden sm:inline">Next</span>
+          <span aria-hidden className="text-base leading-none">›</span>
         </span>
       )}
     </nav>
