@@ -1,5 +1,6 @@
 /**
  * Server-side API. Calls the Hono backend.
+ * Use only in Server Actions or Server Components.
  */
 
 const API_BASE = process.env.API_URL ?? "http://localhost:8787";

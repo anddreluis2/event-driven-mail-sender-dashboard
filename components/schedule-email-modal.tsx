@@ -1,7 +1,8 @@
 "use client";
 
-import { useActionState, useEffect, useState } from "react";
-import { scheduleEmailAction, type ScheduleEmailState } from "@/actions/schedule-email";
+import { useState } from "react";
+import { scheduleEmailSchema, type ScheduleEmailInput } from "@/lib/schemas";
+import type { ScheduleEmailState } from "@/lib/types";
 import { DateTimePicker } from "./date-time-picker";
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 
@@ -17,22 +18,63 @@ const textareaClassName =
 
 export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
   const [sendAt, setSendAt] = useState<Date | undefined>(undefined);
-  const [state, formAction, isPending] = useActionState<
-    ScheduleEmailState | null,
-    FormData
-  >(scheduleEmailAction, null);
-
-  useEffect(() => {
-    if (state?.success) {
-      onSuccess?.();
-    }
-  }, [state?.success, onSuccess]);
+  const [state, setState] = useState<ScheduleEmailState | null>(null);
+  const [isPending, setIsPending] = useState(false);
 
   const errors = state && !state.success && "errors" in state ? state.errors : undefined;
   const submitError = state && !state.success && "error" in state ? state.error : undefined;
 
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
+    e.preventDefault();
+    setState(null);
+    setIsPending(true);
+
+    const payload = {
+      toEmail: (e.currentTarget.elements.namedItem("toEmail") as HTMLInputElement).value,
+      subject: (e.currentTarget.elements.namedItem("subject") as HTMLInputElement).value,
+      body: (e.currentTarget.elements.namedItem("body") as HTMLTextAreaElement).value,
+      sendAt: sendAt?.toISOString() ?? "",
+    };
+
+    const parsed = scheduleEmailSchema.safeParse(payload);
+    if (!parsed.success) {
+      const errors: Partial<Record<keyof ScheduleEmailInput, string>> = {};
+      parsed.error.issues.forEach((err) => {
+        const path = err.path[0] as keyof ScheduleEmailInput;
+        if (path && !errors[path]) errors[path] = err.message;
+      });
+      setState({ success: false, errors });
+      setIsPending(false);
+      return;
+    }
+
+    try {
+      const res = await fetch("/api/emails/schedule", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify(parsed.data),
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        setState({ success: false, error: data.error ?? "Failed to schedule email" });
+        return;
+      }
+
+      setState({ success: true });
+      onSuccess?.();
+    } catch (err) {
+      setState({
+        success: false,
+        error: err instanceof Error ? err.message : "Failed to schedule email",
+      });
+    } finally {
+      setIsPending(false);
+    }
+  };
+
   return (
-    <form action={formAction} className="space-y-4">
+    <form onSubmit={handleSubmit} className="space-y-4">
       <input type="hidden" name="sendAt" value={sendAt?.toISOString() ?? ""} />
       {submitError && (
         <div className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/50 dark:text-red-200">
