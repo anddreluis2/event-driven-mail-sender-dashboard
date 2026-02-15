@@ -1,17 +1,24 @@
 import type { ListedEmail } from "@/lib/types";
+import { parseApiError } from "@/lib/api-error";
 
 const API_BASE = process.env.API_URL ?? "http://localhost:8787";
+
+async function handleErrorResponse(
+  res: Response,
+  fallback: string,
+): Promise<never> {
+  const body = await res.json().catch(() => ({}));
+  const message = parseApiError(body, `${fallback} (${res.status})`);
+  throw new Error(message);
+}
 
 export async function listEmails(opts?: { page?: number }) {
   const params = opts?.page ? `?page=${opts.page}` : "";
   const res = await fetch(`${API_BASE}/emails${params}`);
-  const data = await res.json().catch(() => ({}));
   if (!res.ok) {
-    throw new Error(
-      (data as { error?: string }).error ?? "Failed to fetch emails"
-    );
+    await handleErrorResponse(res, "Failed to fetch emails");
   }
-  return data as {
+  return (await res.json()) as {
     emails: ListedEmail[];
     total: number;
     page: number;
@@ -32,14 +39,8 @@ export async function scheduleEmail(payload: {
   });
 
   if (!res.ok) {
-    const err = await res.json().catch(() => ({}));
-    throw new Error(
-      (err as { message?: string }).message ??
-        (err as { error?: string }).error ??
-        `Request failed: ${res.status}`,
-    );
+    await handleErrorResponse(res, "Failed to schedule email");
   }
 
   return res.json();
 }
-
