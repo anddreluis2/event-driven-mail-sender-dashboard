@@ -1,4 +1,23 @@
+import type { ListedEmail } from "@/lib/types";
+
 const API_BASE = process.env.API_URL ?? "http://localhost:8787";
+
+export async function listEmails(opts?: { page?: number }) {
+  const params = opts?.page ? `?page=${opts.page}` : "";
+  const res = await fetch(`${API_BASE}/emails${params}`);
+  const data = await res.json().catch(() => ({}));
+  if (!res.ok) {
+    throw new Error(
+      (data as { error?: string }).error ?? "Failed to fetch emails"
+    );
+  }
+  return data as {
+    emails: ListedEmail[];
+    total: number;
+    page: number;
+    limit: number;
+  };
+}
 
 export async function scheduleEmail(payload: {
   toEmail: string;
