@@ -1,8 +1,8 @@
 "use client";
 
-import { useState } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
 import { scheduleEmailSchema, type ScheduleEmailInput } from "@/lib/schemas";
-import type { ScheduleEmailState } from "@/lib/types";
 import { DateTimePicker } from "./date-time-picker";
 import { DialogFooter, DialogClose } from "@/components/ui/dialog";
 
@@ -17,125 +17,131 @@ const textareaClassName =
   "flex w-full rounded-md border border-zinc-200 bg-white px-3 py-2 text-sm text-zinc-950 placeholder:text-zinc-500 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 dark:border-zinc-800 dark:bg-zinc-950 dark:text-zinc-50 dark:placeholder:text-zinc-400 dark:focus:ring-zinc-50";
 
 export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
-  const [sendAt, setSendAt] = useState<Date | undefined>(undefined);
-  const [state, setState] = useState<ScheduleEmailState | null>(null);
-  const [isPending, setIsPending] = useState(false);
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    watch,
+    setError,
+    clearErrors,
+    formState: { errors, isSubmitting },
+  } = useForm<ScheduleEmailInput>({
+    resolver: zodResolver(scheduleEmailSchema),
+    defaultValues: { toEmail: "", subject: "", body: "", sendAt: "" },
+  });
 
-  const errors = state && !state.success && "errors" in state ? state.errors : undefined;
-  const submitError = state && !state.success && "error" in state ? state.error : undefined;
+  const sendAtValue = watch("sendAt");
+  const dateValue = sendAtValue ? new Date(sendAtValue) : undefined;
 
-  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
-    e.preventDefault();
-    setState(null);
-    setIsPending(true);
-
-    const payload = {
-      toEmail: (e.currentTarget.elements.namedItem("toEmail") as HTMLInputElement).value,
-      subject: (e.currentTarget.elements.namedItem("subject") as HTMLInputElement).value,
-      body: (e.currentTarget.elements.namedItem("body") as HTMLTextAreaElement).value,
-      sendAt: sendAt?.toISOString() ?? "",
-    };
-
-    const parsed = scheduleEmailSchema.safeParse(payload);
-    if (!parsed.success) {
-      const errors: Partial<Record<keyof ScheduleEmailInput, string>> = {};
-      parsed.error.issues.forEach((err) => {
-        const path = err.path[0] as keyof ScheduleEmailInput;
-        if (path && !errors[path]) errors[path] = err.message;
-      });
-      setState({ success: false, errors });
-      setIsPending(false);
-      return;
-    }
-
+  const onSubmit = async (data: ScheduleEmailInput) => {
+    // calls server for future auth just on server side
     try {
       const res = await fetch("/api/emails/schedule", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify(parsed.data),
+        body: JSON.stringify(data),
       });
-      const data = await res.json();
+      const result = await res.json();
 
       if (!res.ok) {
-        setState({ success: false, error: data.error ?? "Failed to schedule email" });
+        setError("root", {
+          message: result.error ?? "Failed to schedule email",
+        });
         return;
       }
 
-      setState({ success: true });
       onSuccess?.();
     } catch (err) {
-      setState({
-        success: false,
-        error: err instanceof Error ? err.message : "Failed to schedule email",
+      setError("root", {
+        message:
+          err instanceof Error ? err.message : "Failed to schedule email",
       });
-    } finally {
-      setIsPending(false);
     }
   };
 
   return (
-    <form onSubmit={handleSubmit} className="space-y-4">
-      <input type="hidden" name="sendAt" value={sendAt?.toISOString() ?? ""} />
-      {submitError && (
+    <form onSubmit={handleSubmit(onSubmit)} className="space-y-4">
+      {errors.root && (
         <div className="rounded-md bg-red-50 p-3 text-sm text-red-800 dark:bg-red-950/50 dark:text-red-200">
-          {submitError}
+          {errors.root.message}
         </div>
       )}
       <div className="space-y-2">
-        <label htmlFor="toEmail" className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
+        <label
+          htmlFor="toEmail"
+          className="text-sm font-medium text-zinc-950 dark:text-zinc-50"
+        >
           To
         </label>
         <input
           id="toEmail"
-          name="toEmail"
+          {...register("toEmail")}
           type="email"
-          required
           placeholder="recipient@example.com"
           className={inputClassName}
         />
-        {errors?.toEmail && (
-          <p className="text-sm text-red-600 dark:text-red-400">{errors.toEmail}</p>
+        {errors.toEmail && (
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {errors.toEmail.message}
+          </p>
         )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="subject" className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
+        <label
+          htmlFor="subject"
+          className="text-sm font-medium text-zinc-950 dark:text-zinc-50"
+        >
           Subject
         </label>
         <input
           id="subject"
-          name="subject"
+          {...register("subject")}
           type="text"
-          required
           placeholder="Email subject"
           className={inputClassName}
         />
-        {errors?.subject && (
-          <p className="text-sm text-red-600 dark:text-red-400">{errors.subject}</p>
+        {errors.subject && (
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {errors.subject.message}
+          </p>
         )}
       </div>
       <div className="space-y-2">
-        <label htmlFor="body" className="text-sm font-medium text-zinc-950 dark:text-zinc-50">
+        <label
+          htmlFor="body"
+          className="text-sm font-medium text-zinc-950 dark:text-zinc-50"
+        >
           Body
         </label>
         <textarea
           id="body"
-          name="body"
-          required
+          {...register("body")}
           placeholder="Email body..."
           rows={4}
           className={textareaClassName}
         />
-        {errors?.body && (
-          <p className="text-sm text-red-600 dark:text-red-400">{errors.body}</p>
+        {errors.body && (
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {errors.body.message}
+          </p>
         )}
       </div>
       <div className="space-y-3">
         <label className="block text-sm font-medium text-zinc-950 dark:text-zinc-50">
           Send at
         </label>
-        <DateTimePicker value={sendAt} onChange={setSendAt} datePlaceholder="Pick date" />
-        {errors?.sendAt && (
-          <p className="text-sm text-red-600 dark:text-red-400">{errors.sendAt}</p>
+        <DateTimePicker
+          value={dateValue}
+          onChange={(date) => {
+            setValue("sendAt", date?.toISOString() ?? "");
+            if (date) clearErrors("sendAt");
+          }}
+          datePlaceholder="Pick date"
+        />
+        {errors.sendAt && (
+          <p className="text-sm text-red-600 dark:text-red-400">
+            {errors.sendAt.message}
+          </p>
         )}
       </div>
       <DialogFooter>
@@ -149,10 +155,10 @@ export function ScheduleEmailModal({ onSuccess }: ScheduleEmailModalProps) {
         </DialogClose>
         <button
           type="submit"
-          disabled={isPending}
+          disabled={isSubmitting}
           className="inline-flex h-10 items-center justify-center rounded-md bg-zinc-950 px-4 text-sm font-medium text-white transition-colors hover:bg-zinc-800 focus:outline-none focus:ring-2 focus:ring-zinc-950 focus:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 dark:bg-zinc-50 dark:text-zinc-950 dark:hover:bg-zinc-200 dark:focus:ring-zinc-50"
         >
-          {isPending ? "Scheduling..." : "Schedule"}
+          {isSubmitting ? "Scheduling..." : "Schedule"}
         </button>
       </DialogFooter>
     </form>
