@@ -1,5 +1,14 @@
 import type { ScheduleEmailInput } from "@/lib/schemas";
 
+export type ListedEmail = {
+  id: string;
+  subject: string;
+  status: string;
+  toEmail: string;
+  sentAt: string | null;
+  createdAt: string;
+};
+
 export type ScheduleEmailState =
   | { success: true }
   | {
