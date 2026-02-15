@@ -10,15 +10,25 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
+import { Pagination } from "@/components/ui/pagination";
 import { ScheduleEmailModal } from "./schedule-email-modal";
 import type { ListedEmail } from "@/lib/types";
 
 type ScheduledEmailsSectionProps = {
   initialEmails: ListedEmail[];
+  total: number;
+  page: number;
+  limit: number;
   error?: string | null;
 };
 
-export function ScheduledEmailsSection({ initialEmails, error }: ScheduledEmailsSectionProps) {
+export function ScheduledEmailsSection({
+  initialEmails,
+  total,
+  page,
+  limit,
+  error,
+}: ScheduledEmailsSectionProps) {
   const [open, setOpen] = useState(false);
   const router = useRouter();
 
@@ -120,6 +130,19 @@ export function ScheduledEmailsSection({ initialEmails, error }: ScheduledEmails
                 ))}
               </tbody>
             </table>
+          </div>
+        )}
+        {!error && total > 0 && (
+          <div className="flex flex-col items-center justify-between gap-4 border-t border-zinc-200 px-4 py-3 sm:flex-row dark:border-zinc-800">
+            <p className="text-sm text-zinc-500 dark:text-zinc-400">
+              {total} total · page {page} of {Math.ceil(total / limit)}
+            </p>
+            <Pagination
+              page={page}
+              totalPages={Math.ceil(total / limit)}
+              basePath="/"
+              siblingCount={1}
+            />
           </div>
         )}
       </div>
